@@ -4,12 +4,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import User
 from .serializers import UserSerializer
+from .tasks import create_user, find_user
 from .utils import send_message
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import json
 
-# https://api.telegram.org/bot1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c/setWebhook?url=https://f84a49dbbbdc.ngrok.io/event/
+# https://api.telegram.org/bot1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c/setWebhook?url=https://8458691783d0.ngrok.io/event/
 # {'update_id': 756137288,
 #     'message': {
 #         'message_id': 374,
@@ -35,15 +36,16 @@ def event(request):
     else:
         if 'text' in message:
             if '/start' in message['text']:
-                text = f'Olá, {first_name}! Prazer em conhecer você! Meu nome é Metabee. Sua integração foi concluída com sucesso!'
+                text = f'Olá, {first_name}! Prazer em conhecer você! Meu nome é Metabee. Compartilhe seu contato para completar a integração.'
                 reply_markup = json.dumps(
                     {'keyboard': [[{'text': 'Share contact', 'request_contact': True}]]}
                 )
                 send_message(chat_id, text, reply_markup)
         elif 'contact' in message:
             phone_number = message['contact']['phone_number']
-            # worker aqui ou antes do event
-            User.objects.create(name=fullname, chat_id=chat_id, phone_number=phone_number)
+            create_user(name=fullname, chat_id=chat_id, phone_number=phone_number)
+            text = 'Obrigado pela sua integração!'
+            send_message(chat_id, text)
     return JsonResponse({'message': 'Hello'})
 
 
@@ -63,10 +65,6 @@ def messages(request):
     Send message to user
     """
     payload = request.data
-    filters = ['name', 'chat_id', 'phone_number']
-    for filter in filters:
-        user = User.objects.filter(**{filter: payload[filter]}).first()
-        if user is not None:
-            break
+    user = find_user(payload)
     send_message(user.chat_id, payload['text'])
     return JsonResponse({'hello': 'hello'})

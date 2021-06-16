@@ -1,6 +1,16 @@
 version: "3.9"
    
 services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - rabbitmq
   db:
     image: postgres
     volumes:
@@ -12,12 +22,13 @@ services:
       - PGDATA=/tmp
     ports:
       - "5432:5432"
-  web:
+  celery:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: celery -A core worker -l INFO
     volumes:
       - .:/code
-    ports:
-      - "8000:8000"
     depends_on:
-      - db
+      - web
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq:3.7-alpine
