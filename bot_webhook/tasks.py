@@ -1,7 +1,8 @@
-from celery import shared_task
-from .models import Message, User
 import requests
+from celery import shared_task
 from celery.utils.log import get_task_logger
+
+from .models import Message, User
 
 logger = get_task_logger(__name__)
 
@@ -15,6 +16,5 @@ def send_message(token, chat_id, text, reply_markup=None):
 
 @shared_task
 def create_message(user_id, text):
-    logger.info(text)
     user = User.objects.get(pk=user_id)
     Message.objects.create(sent_to=user, text=text)

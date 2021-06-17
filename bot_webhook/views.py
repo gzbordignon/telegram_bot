@@ -1,15 +1,15 @@
 import json
+
 import requests
-from django.core.cache import cache
 from django.http import JsonResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from .models import User, Bot
+
+from .models import Bot, User
 from .serializers import UserSerializer
-from .tasks import send_message, create_message
+from .tasks import create_message, send_message
 
 # https://api.telegram.org/bot1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c/getMe
 # {'update_id': 756137288,
@@ -39,8 +39,11 @@ def api_root(request, format=None):
 def set_webhook(request):
     payload = request.data
     ngrok_url = payload['ngrok_url']
-    token = payload['token']
-    Bot.set_token(token)
+    if 'token' in payload:
+        token = payload['token']
+    else:
+        token = None
+    token = Bot.set_token(token)
     url = f'https://api.telegram.org/bot{token}/setWebhook?url={ngrok_url}/event/'
     response = requests.get(url)
     response_dict = json.loads(response.text)
@@ -65,9 +68,7 @@ def event(request):
         if 'text' in message:
             if '/start' in message['text']:
                 text = f'Olá, {first_name}! Prazer em conhecer você! Meu nome é Metabee. Compartilhe seu contato para completar a integração.'
-                reply_markup = json.dumps(
-                    {'keyboard': [[{'text': 'Share contact', 'request_contact': True}]]}
-                )
+                reply_markup = json.dumps({'keyboard': [[{'text': 'Share contact', 'request_contact': True}]]})
                 send_message.delay(token, chat_id, text, reply_markup)
         # if user shared his contact
         elif 'contact' in message:
@@ -97,17 +98,21 @@ def messages(request):
     token = Bot.get_token()
     filters = ['name', 'chat_id', 'phone_number']
     if 'text' in payload:
-        text = payload['text']
-        for filter in filters:
-            if filter in payload:
-                user = User.objects.filter(**{filter: payload[filter]}).first()
-                if user is not None:
-                    break
-        if user is not None:
-            create_message.delay(user.id, text)
-            send_message.delay(token, user.chat_id, text)
-            return JsonResponse({'message': 'Message was sent successfuly!'})
+        if all((filter not in payload for filter in filters)):
+            return JsonResponse({'erro': 'Por favor, forneça alguma informação válida do destinário.'})
         else:
-            return JsonResponse({'error': "There isn't a user with this credentials."})
+            text = payload['text']
+            user = None
+            for filter in filters:
+                if filter in payload:
+                    user = User.objects.filter(**{filter: payload[filter]}).first()
+                    if user is not None:
+                        break
+            if user is not None:
+                create_message.delay(user.id, text)
+                send_message.delay(token, user.chat_id, text)
+                return JsonResponse({'sucesso': 'A mensagem foi enviada com sucesso!'})
+            else:
+                return JsonResponse({'erro': 'Não foi possível encontrar um usuário com as credenciais fornecidas.'})
     else:
-        return JsonResponse({'error': 'The message needs a text.'})
+        return JsonResponse({'erro': 'Campo text obrigatório.'})
