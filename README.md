@@ -17,15 +17,19 @@ Rode o Ngrok:
 ./ngrok http 8000
 ```
 
-Set webhook enviando um JSON contendo a url https do Ngrok para o seguinte endereço:
+Set o webhook enviando um JSON contendo a url https do Ngrok para o seguinte endereço:
 
     localhost:8000/set_webhook/
+    
+    Envie o seu bot token no request para usar o seu bot, se não enviar um token um bot padrão será usado. 
+    
+    Para enviar mensagem para o bot padrão acesse: t.me/MieatoBot
     
     request
     JSON exemplo:
     {
       "ngrok_url": "https://e10cb065222e.ngrok.io",
-      "token": seu_bot_token # opcional, se não enviar um token o meu bot será enviado, t.me/MieatoBot
+      "token": seu_bot_token # opcional
     }
     
     response
