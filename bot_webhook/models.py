@@ -20,18 +20,6 @@ class Bot(models.Model):
     def get_token(cls):
         return cls.objects.first().token
 
-    @classmethod
-    def create_message(cls, user_id, text):
-        user = User.objects.get(pk=user_id)
-        bot = cls.objects.first()
-        bot.objects.create(sent_to=user, text=text)
-
-    @classmethod
-    def send_message(cls, token, chat_id, text, reply_markup=None):
-        url = 'https://api.telegram.org/bot' + token + '/sendMessage'
-        data = dict(chat_id=chat_id, text=text, reply_markup=reply_markup)
-        requests.post(url, data)
-
 
 class User(models.Model):
     name = models.CharField(max_length=100)

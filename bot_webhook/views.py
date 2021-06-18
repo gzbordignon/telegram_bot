@@ -11,17 +11,6 @@ from .models import Bot, User
 from .serializers import UserSerializer
 from .tasks import create_message, send_message
 
-# https://api.telegram.org/bot1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c/getMe
-# {'update_id': 756137288,
-#     'message': {
-#         'message_id': 374,
-#         'from': {'id': 983126414, 'is_bot': False, 'first_name': 'Guilherme', 'last_name': 'Bordignon', 'language_code': 'pt-br'},
-#         'chat': {'id': 983126414, 'first_name': 'Guilherme', 'last_name': 'Bordignon', 'type': 'private'},
-#         'date': 1623727384, 'text': '/start', 'entities': [{'offset': 0, 'length': 6, 'type': 'bot_command'}]
-#     }
-# }
-# token = '1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c'
-
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -94,7 +83,7 @@ def users(request):
 @api_view(['POST'])
 def messages(request):
     """
-    Send message to user
+    Save message in the database and send it to user.
     """
     payload = request.data
     token = Bot.get_token()
@@ -111,7 +100,7 @@ def messages(request):
                     if user is not None:
                         break
             if user is not None:
-                create_message.delay(user.id, text)
+                create_message.delay(token, user.id, text)
                 send_message.delay(token, user.chat_id, text)
                 return JsonResponse({'sucesso': 'A mensagem foi enviada com sucesso!'})
             else:
