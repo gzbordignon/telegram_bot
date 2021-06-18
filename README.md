@@ -6,7 +6,6 @@ Renomeie o arquivo .env.example para .env
 
 Rode o docker container
 ```
-$ docker-compose build
 $ docker-compose up -d
 ```
 
@@ -17,7 +16,7 @@ $ docker-compose exec web python manage.py migrate
 
 Rode o Ngrok:
 ```
-./ngrok http 8000
+$ ./ngrok http 8000
 ```
 
 Para setar o webhook, envie um JSON contendo a url https do Ngrok no request.
