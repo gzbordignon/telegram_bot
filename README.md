@@ -14,7 +14,7 @@ $ docker-compose exec web python manage.py migrate
 
 Rode o Ngrok:
 ```
-ngrok http 8000
+./ngrok http 8000
 ```
 
 Set webhook enviando um JSON contendo a url https do Ngrok para o seguinte endereço:
