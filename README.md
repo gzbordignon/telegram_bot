@@ -2,6 +2,8 @@
 
 ## Modo de uso
 
+Renomeie o arquivo .env.example para .env
+
 Rode o docker container
 ```
 $ docker-compose build
