@@ -63,6 +63,7 @@ def event(request):
     if user is not None:
         text = f'Olá, {first_name}! Você já está integrado!'
         send_message.delay(token, chat_id, text)
+        return JsonResponse({'message': 'Você já está integrado!'})
     else:
         # if user sent a message
         if 'text' in message:
@@ -70,13 +71,14 @@ def event(request):
                 text = f'Olá, {first_name}! Prazer em conhecer você! Meu nome é Metabee. Compartilhe seu contato para completar a integração.'
                 reply_markup = json.dumps({'keyboard': [[{'text': 'Share contact', 'request_contact': True}]]})
                 send_message.delay(token, chat_id, text, reply_markup)
+                return JsonResponse({'message': 'Integração iniciada.'})
         # if user shared his contact
         elif 'contact' in message:
             phone_number = message['contact']['phone_number']
             User.objects.create(name=fullname, chat_id=chat_id, phone_number=phone_number)
             text = 'Obrigado pela sua integração!'
             send_message.delay(token, chat_id, text)
-    return JsonResponse({'message': 'Hello'})
+        return JsonResponse({'message': 'Integração concluída.'})
 
 
 @api_view(['GET'])

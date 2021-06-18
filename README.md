@@ -12,7 +12,7 @@ Rode as migrações
 $ docker-compose exec web python manage.py migrate
 ```
 
-Baixe, execute e rode o Ngrok:
+Rode o Ngrok:
 ```
 ngrok http 8000
 ```
