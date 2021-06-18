@@ -14,18 +14,18 @@ $ docker-compose exec web python manage.py migrate
 
 Rode o Ngrok:
 ```
-ngrok http 8000
+./ngrok http 8000
 ```
 
-Set webhook enviando um JSON contendo a url https do Ngrok para o seguinte endereço:
+Para setar o webhook, envie um JSON contendo a url https do Ngrok no request.
 
-    localhost:8000/set_webhook/
-    
+    POST /set_webhook/
+
     request
     JSON exemplo:
     {
       "ngrok_url": "https://e10cb065222e.ngrok.io",
-      "token": seu_bot_token # opcional, se não enviar um token será usado um bot padrão
+      "token": seu_bot_token # opcional, caso não envie um token um bot padrão será usado. Bot padrão: t.me/MieatoBot
     }
     
     response
@@ -36,7 +36,7 @@ Set webhook enviando um JSON contendo a url https do Ngrok para o seguinte ender
     
 Faça a integração:
 
-    Dê um comando /start no bot e após a resposta compartilhe seu contato
+    Dê o comando /start no bot e após a resposta compartilhe seu contato
 
 
 ## API
