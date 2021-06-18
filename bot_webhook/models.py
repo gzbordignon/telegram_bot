@@ -6,14 +6,14 @@ class Bot(models.Model):
     token = models.CharField(max_length=100)
 
     @classmethod
-    def set_token(cls, token='1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c'):
+    def set_token(cls, token):
         if cls.objects.count() > 0:
             bot = cls.objects.first()
             if token is not None:
                 bot.token = token
                 bot.save()
         else:
-            bot = cls.objects.create(token=token)
+            bot = cls.objects.create(token='1175594888:AAFM9ACsHYs5muY3Vs212V_ahc1HCQVFi6c')
         return bot.token
 
     @classmethod
