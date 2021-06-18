@@ -25,7 +25,7 @@ Set webhook enviando um JSON contendo a url https do Ngrok para o seguinte ender
     JSON exemplo:
     {
       "ngrok_url": "https://e10cb065222e.ngrok.io",
-      "token": seu_bot_token # opcional, se não enviar um token será usado um bot padrão
+      "token": seu_bot_token # opcional, se não enviar um token o meu bot será enviado, t.me/MieatoBot
     }
     
     response
